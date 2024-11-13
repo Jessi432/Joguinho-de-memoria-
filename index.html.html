@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jogo de Memória Especial</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f8ff;
+            margin: 0;
+            flex-direction: column;
+            text-align: center;
+        }
+        #gameContainer {
+            display: grid;
+            grid-template-columns: repeat(4, 100px);
+            grid-gap: 10px;
+        }
+        .card {
+            width: 100px;
+            height: 100px;
+            background-color: #87cefa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            color: white;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: transform 0.2s;
+        }
+        .card.flipped {
+            background-color: #ffb6c1;
+            cursor: default;
+        }
+        #message {
+            display: none;
+            margin-top: 20px;
+            font-size: 18px;
+            color: #32cd32;
+        }
+    </style>
+</head>
+<body>
+    <h2>Jogo de Memória</h2>
+    <p>Combine todos os pares para desbloquear uma pergunta especial! 😊</p>
+    <div id="gameContainer"></div>
+    <p id="message">Parabéns, você completou o jogo! Quer sair comigo na sexta-feira? 😊</p>
+
+    <script>
+        const cards = [
+            "🐶", "🐱", "🐰", "🦊",
+            "🐶", "🐱", "🐰", "🦊",
+            "🐸", "🐼", "🦁", "🐨",
+            "🐸", "🐼", "🦁", "🐨"
+        ];
+
+        let flippedCards = [];
+        let matchedPairs = 0;
+
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        function createBoard() {
+            shuffle(cards);
+            const gameContainer = document.getElementById("gameContainer");
+            cards.forEach((symbol, index) => {
+                const card = document.createElement("div");
+                card.classList.add("card");
+                card.dataset.symbol = symbol;
+                card.dataset.index = index;
+                card.onclick = () => flipCard(card);
+                gameContainer.appendChild(card);
+            });
+        }
+
+        function flipCard(card) {
+            if (card.classList.contains("flipped") || flippedCards.length === 2) return;
+
+            card.classList.add("flipped");
+            card.textContent = card.dataset.symbol;
+            flippedCards.push(card);
+
+            if (flippedCards.length === 2) {
+                checkForMatch();
+            }
+        }
+
+        function checkForMatch() {
+            const [card1, card2] = flippedCards;
+            if (card1.dataset.symbol === card2.dataset.symbol) {
+                matchedPairs++;
+                flippedCards = [];
+                if (matchedPairs === cards.length / 2) {
+                    document.getElementById("message").style.display = "block";
+                }
+            } else {
+                setTimeout(() => {
+                    card1.classList.remove("flipped");
+                    card2.classList.remove("flipped");
+                    card1.textContent = "";
+                    card2.textContent = "";
+                    flippedCards = [];
+                }, 1000);
+            }
+        }
+
+        createBoard();
+    </script>
+</body>
+</html>
